@@ -1,5 +1,5 @@
 #include<stdio.h>
-#define MAX 200000
+#define MAX 200001
 int n, k;
 int drive[MAX], block[MAX];
 void init() {
@@ -15,9 +15,10 @@ int ckck(int mid) {
 	for (int i = 0; i < n; i++) {
 		if (drive[i] <= mid) {
 			poss_cnt++;
-			if (i == n - 1) possible[poss_length] = poss_cnt;
+			if (i == n - 1) possible[poss_length++] = poss_cnt;
 		}
 		else {
+			if (poss_cnt == 0) continue;
 			possible[poss_length++] = poss_cnt;
 			poss_cnt = 0;
 		}
