@@ -27,51 +27,46 @@ void init() {
         last_edge[i] = last_edge2[i] = 0;
 }
 
-void heap_Push(Heap item) {
-    if (heap_len == 0) {
-        heap[++heap_len] = item;
-    }
-    else if (heap_len > 0) {
-        heap[++heap_len] = item;
-        int cur = heap_len;
-        while (cur > 1) {
-            if (heap[cur / 2].cnt > heap[cur].cnt) {
-                Heap h = heap[cur / 2];
-                heap[cur / 2] = heap[cur];
-                heap[cur] = h;
-                cur /= 2;
-            }
-            else break;
-        }
-    }
+void heap_push(Heap item) {
+
+	heap[++heap_len] = item;
+	if (heap_len == 1) return;
+
+	int cur = heap_len;
+	while (cur > 1) {
+		if (heap[cur].cnt < heap[cur / 2].cnt) {
+			Heap h = heap[cur]; heap[cur] = heap[cur / 2]; heap[cur / 2] = h;
+			cur /= 2;
+		}
+		else break;
+	}
 }
-Heap heap_Pop() {
-    Heap min_heap = heap[1];
-    heap[1] = heap[heap_len--];
+int small_idx(int i1, int i2) {
+	return heap[i1].cnt < heap[i2].cnt ? i1 : i2;
+}
 
-    int cur = 1;
-    while (cur <= heap_len / 2) {
-        if (2 * cur + 1 > heap_len) {
-            if (heap[2 * cur].cnt < heap[cur].cnt) {
-                Heap h = heap[cur / 2];
-                heap[cur / 2] = heap[cur];
-                heap[cur] = h;
-            }
-            break;
-        }
-        else {
-            int min_idx = heap[2 * cur + 1].cnt > heap[2 * cur].cnt ? 2 * cur : 2 * cur + 1;
-            if (heap[cur].cnt > heap[min_idx].cnt) {
-                Heap h = heap[cur];
-                heap[cur] = heap[min_idx];
-                heap[min_idx] = h;
+Heap heap_pop() {
+	Heap rHeap = heap[1];
+	heap[1] = heap[heap_len--];
 
-                cur = min_idx;
-            }
-            else break;
-        }
-    }
-    return min_heap;
+	int cur = 1;
+	while (2 * cur <= heap_len) {
+		if (2 * cur + 1 > heap_len) {
+			if (heap[cur].cnt > heap[2 * cur].cnt) {
+				Heap h = heap[cur]; heap[cur] = heap[2 * cur]; heap[2 * cur] = h;
+			}
+			break;
+		}
+		else {
+			int idx = small_idx(2 * cur, 2 * cur + 1);
+			if (heap[cur].cnt > heap[idx].cnt) {
+				Heap h = heap[cur]; heap[cur] = heap[idx]; heap[idx] = h;
+				cur = idx;
+			}
+			else break;
+		}
+	}
+	return rHeap;
 }
 int main()
 {
@@ -98,33 +93,33 @@ int main()
             dist[i] = dist2[i] = INF;
         Heap newHeap;
         newHeap.node = start, newHeap.cnt = 0;
-        heap_Push(newHeap);
+        heap_push(newHeap);
         dist[start] = 0;
         while (heap_len > 0) {
-            Heap next = heap_Pop();
+            Heap next = heap_pop();
             if (next.cnt > dist[next.node]) continue;
             for (int i = last_edge[next.node]; i; i = edge[i].prev) {
                 Edge e = edge[i];
                 if (dist[e.end] > dist[next.node] + e.cnt) {
                     dist[e.end] = dist[next.node] + e.cnt;
                     newHeap.node = e.end, newHeap.cnt = dist[e.end];
-                    heap_Push(newHeap);
+                    heap_push(newHeap);
                 }
             }
         }
         heap_len = 0;
         newHeap.node = start, newHeap.cnt = 0;
-        heap_Push(newHeap);
+        heap_push(newHeap);
         dist2[start] = 0;
         while (heap_len > 0) {
-            Heap next = heap_Pop();
+            Heap next = heap_pop();
             if (next.cnt > dist2[next.node]) continue;
             for (int i = last_edge2[next.node]; i; i = edge2[i].prev) {
                 Edge e = edge2[i];
                 if (dist2[e.end] > dist2[next.node] + e.cnt) {
                     dist2[e.end] = dist2[next.node] + e.cnt;
                     newHeap.node = e.end, newHeap.cnt = dist2[e.end];
-                    heap_Push(newHeap);
+                    heap_push(newHeap);
                 }
             }
         }
